@@ -13,11 +13,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       // Título do aplicativo na barra de tarefas
       title: 'Contato Direto',
-      // Define o tema do aplicativo com cores padrão do WhatsApp
+      // Define o tema do aplicativo com um esquema de cores personalizado
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.teal, // Cor principal
-        ),
+        // ==============================================
+        // PALETA DE CORES COM FUNDO BRANCO E APPBAR CINZA
+        // ==============================================
+        colorScheme:
+            ColorScheme.fromSwatch(
+              primarySwatch: Colors.grey, // Cor principal para a AppBar
+            ).copyWith(
+              secondary: Colors.orange.shade700, // Cor de destaque para botões
+              // Cor de fundo clara para o conteúdo
+              surface: Colors.white,
+              // Cor do texto nos widgets com cor de fundo clara
+              onSurface: Colors.black,
+              // Cor do texto na AppBar, agora branco para o contraste
+              onPrimary: Colors.white,
+              // Cor do texto em botões com cor de fundo secundária
+              onSecondary: Colors.white,
+            ),
+        scaffoldBackgroundColor: Colors.white, // Cor de fundo do Scaffold
         useMaterial3: true,
       ),
       home: const HomePage(),
@@ -33,13 +48,11 @@ class HomePage extends StatelessWidget {
   // ==============================================
 
   // Os números de telefone do WhatsApp. Substitua '55' pelo código do seu país, se necessário.
-  // Certifique-se de que o número está no formato '5531999999999' (código do país + DDD + número).
   final String whatsappComercial = '5531999999999';
   final String whatsappSuporte = '5531988888888';
   final String whatsappFinanceiro = '5531977777777';
 
   // O deep link para abrir outro aplicativo.
-  // Substitua 'outraapp://' pelo esquema do aplicativo que você quer abrir.
   final String appDeepLink = 'outraapp://';
 
   // ==============================================
@@ -53,13 +66,11 @@ class HomePage extends StatelessWidget {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
-      // Caso não consiga abrir o WhatsApp, tente abrir a versão web
       final String webUrl = 'https://wa.me/$phoneNumber';
       final Uri webUri = Uri.parse(webUrl);
       if (await canLaunchUrl(webUri)) {
         await launchUrl(webUri);
       } else {
-        // Se nenhum dos dois funcionar, mostre um erro
         throw 'Não foi possível abrir o WhatsApp.';
       }
     }
@@ -79,8 +90,11 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Contato Direto'),
         centerTitle: true,
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
+        // ==============================================================
+        // ALTERAÇÃO: Agora a barra superior usa a mesma cor dos botões.
+        // ==============================================================
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Theme.of(context).colorScheme.onSecondary,
       ),
       body: Center(
         child: Padding(
@@ -144,8 +158,9 @@ class HomePage extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
-        backgroundColor: Colors.teal.shade700,
-        foregroundColor: Colors.white,
+        // Usando a cor secundária do tema para os botões
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Theme.of(context).colorScheme.onSecondary,
         elevation: 5,
         shadowColor: Colors.black.withOpacity(0.3),
       ),
