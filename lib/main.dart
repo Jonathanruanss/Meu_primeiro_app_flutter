@@ -16,21 +16,18 @@ class MyApp extends StatelessWidget {
       // Define o tema do aplicativo com um esquema de cores personalizado
       theme: ThemeData(
         // ==============================================
-        // PALETA DE CORES COM FUNDO BRANCO E APPBAR CINZA
+        // PALETA DE CORES COM FUNDO BRANCO E APPBAR LARANJA
         // ==============================================
         colorScheme:
             ColorScheme.fromSwatch(
               primarySwatch: Colors.grey, // Cor principal para a AppBar
             ).copyWith(
-              secondary: Colors.orange.shade700, // Cor de destaque para botões
-              // Cor de fundo clara para o conteúdo
-              surface: Colors.white,
-              // Cor do texto nos widgets com cor de fundo clara
-              onSurface: Colors.black,
-              // Cor do texto na AppBar, agora branco para o contraste
-              onPrimary: Colors.white,
-              // Cor do texto em botões com cor de fundo secundária
-              onSecondary: Colors.white,
+              secondary: Colors.orange.shade700, // Cor de destaque (laranja)
+              surface: Colors.white, // Cor de fundo clara para o conteúdo
+              onSurface: Colors.black, // Cor do texto em superfícies claras
+              onPrimary: Colors.white, // Cor do texto na AppBar
+              onSecondary:
+                  Colors.white, // Cor do texto em botões com cor de destaque
             ),
         scaffoldBackgroundColor: Colors.white, // Cor de fundo do Scaffold
         useMaterial3: true,
@@ -51,6 +48,7 @@ class HomePage extends StatelessWidget {
   final String whatsappComercial = '5531999999999';
   final String whatsappSuporte = '5531988888888';
   final String whatsappFinanceiro = '5531977777777';
+  final String whatsappAdicional = '5548988120743';
 
   // O deep link para abrir outro aplicativo.
   final String appDeepLink = 'outraapp://';
@@ -71,6 +69,7 @@ class HomePage extends StatelessWidget {
       if (await canLaunchUrl(webUri)) {
         await launchUrl(webUri);
       } else {
+        // Exibe um erro se não for possível abrir o WhatsApp
         throw 'Não foi possível abrir o WhatsApp.';
       }
     }
@@ -80,6 +79,7 @@ class HomePage extends StatelessWidget {
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri)) {
+      // Exibe um erro se não for possível abrir o link
       throw 'Não foi possível abrir o aplicativo ou o link: $url';
     }
   }
@@ -90,48 +90,71 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Contato Direto'),
         centerTitle: true,
-        // ==============================================================
-        // ALTERAÇÃO: Agora a barra superior usa a mesma cor dos botões.
-        // ==============================================================
         backgroundColor: Theme.of(context).colorScheme.secondary,
         foregroundColor: Theme.of(context).colorScheme.onSecondary,
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              // Botão para o WhatsApp Comercial
-              _buildButton(
-                context,
-                text: 'WhatsApp Comercial',
-                icon: Icons.business,
-                onPressed: () => _launchWhatsApp(whatsappComercial),
-              ),
-              const SizedBox(height: 16),
+              // ==============================================
+              // GRID DE BOTÕES QUADRADOS DO WHATSAPP
+              // ==============================================
+              GridView.count(
+                // Desabilita o scroll da grade para que ela se ajuste ao conteúdo
+                physics: const NeverScrollableScrollPhysics(),
+                // Permite que o GridView seja redimensionado com o conteúdo
+                shrinkWrap: true,
+                // Define 2 colunas
+                crossAxisCount: 2,
+                // Espaçamento entre as colunas
+                crossAxisSpacing: 16.0,
+                // Espaçamento entre as linhas
+                mainAxisSpacing: 16.0,
+                // Aspecto 1.0 para manter a forma quadrada
+                childAspectRatio: 1.0,
+                children: [
+                  // Botão para o WhatsApp Comercial
+                  _buildWhatsAppButton(
+                    context,
+                    text: 'Comercial',
+                    icon: Icons.business,
+                    onPressed: () => _launchWhatsApp(whatsappComercial),
+                  ),
 
-              // Botão para o WhatsApp Suporte Técnico
-              _buildButton(
-                context,
-                text: 'Suporte Técnico',
-                icon: Icons.support_agent,
-                onPressed: () => _launchWhatsApp(whatsappSuporte),
-              ),
-              const SizedBox(height: 16),
+                  // Botão para o WhatsApp Suporte Técnico
+                  _buildWhatsAppButton(
+                    context,
+                    text: 'Suporte',
+                    icon: Icons.support_agent,
+                    onPressed: () => _launchWhatsApp(whatsappSuporte),
+                  ),
 
-              // Botão para o WhatsApp Financeiro
-              _buildButton(
-                context,
-                text: 'WhatsApp Financeiro',
-                icon: Icons.account_balance,
-                onPressed: () => _launchWhatsApp(whatsappFinanceiro),
-              ),
-              const SizedBox(height: 16),
+                  // Botão para o WhatsApp Financeiro
+                  _buildWhatsAppButton(
+                    context,
+                    text: 'Financeiro',
+                    icon: Icons.account_balance,
+                    onPressed: () => _launchWhatsApp(whatsappFinanceiro),
+                  ),
 
-              // Botão para abrir outro aplicativo via deep link
-              _buildButton(
+                  // NOVO BOTÃO: WhatsApp Contato Adicional
+                  _buildWhatsAppButton(
+                    context,
+                    text: 'Adicional',
+                    icon: Icons.phone_in_talk,
+                    onPressed: () => _launchWhatsApp(whatsappAdicional),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // ==============================================
+              // BOTÃO RETANGULAR PARA ABRIR OUTRO APLICATIVO
+              // ==============================================
+              _buildLargeButton(
                 context,
                 text: 'Abrir Outro Aplicativo',
                 icon: Icons.open_in_new,
@@ -144,8 +167,43 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // Widget de helper para criar botões com um estilo consistente
-  Widget _buildButton(
+  // Widget de helper para criar os botões quadrados do WhatsApp
+  Widget _buildWhatsAppButton(
+    BuildContext context, {
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        // Fundo branco
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        elevation: 10,
+        // Sombra laranja
+        shadowColor: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(icon, size: 48, color: Theme.of(context).colorScheme.secondary),
+          const SizedBox(height: 8),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget de helper para criar o botão retangular grande
+  Widget _buildLargeButton(
     BuildContext context, {
     required String text,
     required IconData icon,
@@ -154,15 +212,17 @@ class HomePage extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
-        // Usando a cor secundária do tema para os botões
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        foregroundColor: Theme.of(context).colorScheme.onSecondary,
-        elevation: 5,
-        shadowColor: Colors.black.withOpacity(0.3),
+        // Fundo branco
+        backgroundColor: Colors.white,
+        // Texto preto para contraste com o fundo branco
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        elevation: 10,
+        // Sombra laranja
+        shadowColor: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
       ),
       icon: Icon(icon, size: 24),
       label: Text(
